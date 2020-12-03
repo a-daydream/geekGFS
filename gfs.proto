@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package gfs;
+
+service MasterServerToClient {
+    rpc ListFiles(Request) returns (Reply) {}
+    rpc CreateFile(Request) returns (Reply) {}
+    rpc AppendFile(Request) returns (Reply) {}
+    rpc CreateChunk(Request) returns (Reply) {}
+    rpc ReadFile(Request) returns (Reply) {}
+    rpc WriteFile(Request) returns (Reply) {}
+    rpc DeleteFile(Request) returns (Reply) {}
+    rpc UndeleteFile(Request) returns (Reply) {}
+}
+
+service ChunkServerToClient {
+    rpc Create(Request) returns (Reply) {}
+    rpc GetChunkSpace(Request) returns (Reply) {}
+    rpc Write(Request) returns (Reply) {}
+    rpc Append(Request) returns (Reply) {}
+    rpc Read(Request) returns (Reply) {}
+}
+
+
+message Request {
+  string send_message = 1;
+  string status_code = 2;
+}
+
+message Reply {
+  string reply_message = 1;
+  string status_code = 2;
+}
