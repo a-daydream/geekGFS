@@ -1,4 +1,4 @@
-#include"../headers/utility.h"
+#include"utility.h"
 
 
 int main(int argc, char** argv)

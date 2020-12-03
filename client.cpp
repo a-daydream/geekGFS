@@ -1,4 +1,4 @@
-#include"../headers/client.h"
+#include"client.h"
 
 
 //RPC for master server
@@ -27,10 +27,12 @@ std::string client::CreateFile(const std::string & request)
 {
 
 }
+
 std::string client::DeleteFile(const std::string & request)
 {
 
 }
+
 std::string client::ReadFile(const std::string & request)
 {
 
@@ -81,7 +83,7 @@ void RunClient()
     
     client clienter(grpc::CreateChannel(master_target_str,grpc::InsecureChannelCredentials()));
 
-    std::string user("world");
+    std::string user("master");
     std::string reply = clienter.ListFiles(user);
     std::cout << "Greeter received: " << reply << std::endl;
 }

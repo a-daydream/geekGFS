@@ -1,4 +1,4 @@
-#include"../headers/master_server.h"
+#include"master_server.h"
 
 std::string meta_data::get_latest_chunk(std::string &file_path)
 {
@@ -70,7 +70,9 @@ Status master_server::DeleteFile(ServerContext* context,const Request* request ,
 }
 Status master_server::ListFiles(ServerContext* context,const Request* request ,Reply* reply) 
 {
-
+    std::string prefix("Hello ");
+    reply->set_reply_message(prefix + request->send_message());
+    return Status::OK;
 }
 Status master_server::ReadFile(ServerContext* context,const Request* request ,Reply* reply) 
 {
