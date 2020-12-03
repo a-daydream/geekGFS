@@ -15,13 +15,13 @@ using grpc::Status;
 using gfs::Request;
 using gfs::Reply;
 using gfs::MasterServerToClient;
-using gfs::ChunkServerToClient;
+// using gfs::ChunkServerToClient;
 
 class client
 {
 private:
     std::unique_ptr<MasterServerToClient::Stub> master_stub_;
-    std::unique_ptr<ChunkServerToClient::Stub> chunkserver_stub_;
+    // std::unique_ptr<ChunkServerToClient::Stub> chunkserver_stub_;
 public:
     client(std::shared_ptr<Channel> master_channel)
         : master_stub_(MasterServerToClient::NewStub(master_channel)){}
