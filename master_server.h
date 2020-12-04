@@ -10,6 +10,9 @@
 #include"utility.h"
 #include"gfs.grpc.pb.h"
 #include <uuid/uuid.h>
+#include<unordered_map>
+#include"cstdlib"
+#include"ctime"
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -20,6 +23,18 @@ using gfs::Request;
 using gfs::Reply;
 using gfs::MasterServerToClient;
 
+
+void choose_locs(std::vector<std::string>& chunk_server_locations)
+{
+    gfs_config config;
+    int total = config.chunk_server_locations.size();
+    srand((int)time(0));
+    int num = rand() % total; 
+    chunk_server_locations.push_back(config.chunk_server_locations[num]);
+    chunk_server_locations.push_back(config.chunk_server_locations[(num+1)%total]);
+    chunk_server_locations.push_back(config.chunk_server_locations[(num+2)%total]);
+}
+
 struct chunk
 {
     std::vector<std::string> locations;
@@ -29,10 +44,10 @@ class file
 {
 private:
     std::string file_path;
-    std::unordered_map<uuid_t,chunk>* chunks;
-    bool file_delete ;
+    std::unordered_map<std::string,chunk&>* chunks;
 public:
-    file(std::string &file_path): file_path(file_path),file_delete(false){}
+    file(std::string &file_path): file_path(file_path){}
+    std::unordered_map<std::string,chunk&>* get_chunks(){return this->chunks;}
     ~file(){}
 };
 
@@ -40,15 +55,18 @@ class meta_data
 {
 private:
     std::vector<std::string> locations;
-    std::unordered_map<std::string,file>* files;
-    std::unordered_map<std::string,std::vector<uuid_t>>* locations_dict;
+    std::unordered_map<std::string,file>* files; //filepath to file
+    std::unordered_map<std::string,file>* chunkhandle_to_file;
+    std::unordered_map<std::string,std::vector<std::string>>* locations_dict;
+    std::unordered_map<std::string,std::string>* last_chunk; // file path and last chunkhandle
 public:
     meta_data(std::vector<std::string> locations):locations(locations){}
-    std::string get_latest_chunk(std::string &file_path);
-    std::vector<std::string> get_chunk_locations(uuid_t chunk_handle);
-    status_code create_new_file(std::string &file_path,uuid_t chunk_handle);
-    status_code create_new_chunk(std::string &file_path,uuid_t prev_chunk_handle,uuid_t chunk_handle);
+    void get_latest_chunk(std::string &file_path,std::string&latest_chunk_handle);
+    void get_chunk_locations(const std::string chunk_handle,std::vector<std::string>& chunk_location);
+    void create_new_file(std::string &file_path,std::string chunk_handle,status_code& s);
+    void create_new_chunk(std::string &file_path,std::string prev_chunk_handle,std::string chunk_handle,status_code& s);
     void delete_file(std::string &file_path);
+    std::unordered_map<std::string,file>* get_files(){return this->files;};
     ~meta_data(){}
 };
 
@@ -64,14 +82,14 @@ private:
 public:
     master_server(std::string &port,std::vector<std::string> locations):port(port),metaData(locations){}
 
-    std::string get_chunk_handle();
-    status_code check_valid_file(std::string &file_path);
-    std::vector<std::string> list_files(std::string &file_path);
-    status_code create_file(std::string &file_path,std::string &chunk_handle,std::vector<std::string> &locations);
+    void get_chunk_handle(std::string& s_uuid);
+    void  check_valid_file(std::string &file_path,status_code& s);
+    void  list_files(std::string &file_path,std::vector<std::string>& files);
+    void create_file(std::string &file_path,std::string &chunk_handle,std::vector<std::string> &locations,status_code& s);
     status_code append_file(std::string &file_path,std::string &latest_chunk_handle,std::vector<std::string> &locations);
     status_code create_chunk(std::string &file_path,std::string &prev_chunk_handle,std::vector<std::string> &locations);
-    status_code read_file(std::string &file_path);
-    status_code delete_file(std::string &file_path);
+    void read_file(std::string &file_path,status_code& s);
+    void delete_file(std::string &file_path,status_code& s);
 
 
     Status CreateFile(ServerContext* context,const Request* request ,Reply* reply) override;
@@ -80,7 +98,6 @@ public:
     Status ReadFile(ServerContext* context,const Request* request ,Reply* reply) override;
     Status CreateChunk(ServerContext* context,const Request* request ,Reply* reply) override;
     Status WriteFile(ServerContext* context,const Request* request ,Reply* reply) override;
-    Status UndeleteFile(ServerContext* context,const Request* request ,Reply* reply) override;
     Status AppendFile(ServerContext* context,const Request* request ,Reply* reply) override;
     ~master_server(){}
 };

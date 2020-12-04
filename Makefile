@@ -15,7 +15,7 @@ client: gfs.pb.o gfs.grpc.pb.o client.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 
 master_server: gfs.pb.o gfs.grpc.pb.o master_server.o
-	$(CXX) $^ $(LDFLAGS) -o $@
+	$(CXX) $^ $(LDFLAGS) -o $@ -luuid
 
 %.grpc.pb.cc: %.proto
 	protoc --grpc_out=. --plugin=protoc-gen-grpc=$(GRPC_CPP_PLUGIN_PATH) $<

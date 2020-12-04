@@ -26,7 +26,7 @@ public:
     client(std::shared_ptr<Channel> master_channel)
         : master_stub_(MasterServerToClient::NewStub(master_channel)){}
     
-
+    
 
     std::string ListFiles(const std::string & request);
     std::string CreateFile(const std::string & request);

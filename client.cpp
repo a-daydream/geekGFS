@@ -25,7 +25,24 @@ std::string client::ListFiles(const std::string & request)
 
 std::string client::CreateFile(const std::string & request)
 {
+    // this send_message is a file path
+    Request master_request;
+    master_request.set_send_message(request);
 
+    Reply master_reply;
+
+    ClientContext context;
+
+    Status status = this->master_stub_->CreateFile(&context, master_request, &master_reply);
+
+    if(status.ok()){
+        return master_reply.reply_message();
+    }else{
+        std::cout << status.error_code() << ": " << status.error_message()
+                << std::endl;
+        return "RPC failed";
+    }
+    
 }
 
 std::string client::DeleteFile(const std::string & request)
@@ -84,7 +101,7 @@ void RunClient()
     client clienter(grpc::CreateChannel(master_target_str,grpc::InsecureChannelCredentials()));
 
     std::string user("master");
-    std::string reply = clienter.ListFiles(user);
+    std::string reply = clienter.CreateFile(user);
     std::cout << "Greeter received: " << reply << std::endl;
 }
 
