@@ -36,17 +36,17 @@ public:
         }
     }
 
-    status_code chunk_server::create(std::string &chunk_handle);
-    status_code chunk_server::get_chunk_space(std::string &chunk_handle,float &chunk_space);
-    status_code chunk_server::append(std::string &chunk_handle,std::string &data);
-    status_code chunk_server::read(std::string &chunk_handle);
+    status_code create(std::string &chunk_handle);
+    status_code get_chunk_space(std::string &chunk_handle,float &chunk_space);
+    status_code append(std::string &chunk_handle,std::string &data);
+    status_code read(std::string &chunk_handle);
 
 
-    Status chunk_server::Create(ServerContext* context,const Request* request ,Reply* reply) override;
-    Status chunk_server::Write(ServerContext* context,const Request* request ,Reply* reply) override;
-    Status chunk_server::Read(ServerContext* context,const Request* request ,Reply* reply) override;
-    Status chunk_server::GetChunkSpace(ServerContext* context,const Request* request ,Reply* reply) override;
-    Status chunk_server::Append(ServerContext* context,const Request* request ,Reply* reply) override;
+    Status Create(ServerContext* context,const Request* request ,Reply* reply) override;
+    Status Write(ServerContext* context,const Request* request ,Reply* reply) override;
+    Status Read(ServerContext* context,const Request* request ,Reply* reply) override;
+    Status GetChunkSpace(ServerContext* context,const Request* request ,Reply* reply) override;
+    Status Append(ServerContext* context,const Request* request ,Reply* reply) override;
 
     ~chunk_server(){}
   

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <cstring>
 #include <grpcpp/grpcpp.h>
 
 #include"gfs.grpc.pb.h"
@@ -15,18 +16,24 @@ using grpc::Status;
 using gfs::Request;
 using gfs::Reply;
 using gfs::MasterServerToClient;
-// using gfs::ChunkServerToClient;
+using gfs::ChunkServerToClient;
 
 class client
 {
 private:
     std::unique_ptr<MasterServerToClient::Stub> master_stub_;
-    // std::unique_ptr<ChunkServerToClient::Stub> chunkserver_stub_;
+    std::unique_ptr<ChunkServerToClient::Stub> chunkserver_stub_;
 public:
     client(std::shared_ptr<Channel> master_channel)
         : master_stub_(MasterServerToClient::NewStub(master_channel)) {}
     
-    
+    void set_chunkserver_stub_(std::shared_ptr<Channel> chunkserver_channel);
+
+    void create_file(const std::string file_path);
+    void read_file(const std::string file_path);
+    void write_file(const std::string file_path);
+    void append_file(const std::string file_path);
+
 
     std::string ListFiles(const std::string & request);
     std::string CreateFile(const std::string & request);
@@ -44,6 +51,7 @@ public:
 
     ~client(){}
 };
+
 
 void RunClient();
 

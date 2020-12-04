@@ -35,7 +35,7 @@ void meta_data::create_new_file(std::string &file_path,std::string chunk_handle,
 //to_do
 void meta_data::create_new_chunk(std::string &file_path,std::string prev_chunk_handle,std::string chunk_handle,status_code& s)
 {
-    std::cout<<"create_new_chunk"<<std::endl;
+    // std::cout<<"create_new_chunk"<<std::endl;
     std::unordered_map<std::string,file>::iterator file_it = this->files.find(file_path);
     std::unordered_map<std::string,file>::iterator file_end = this->files.end();
 
@@ -56,17 +56,16 @@ void meta_data::create_new_chunk(std::string &file_path,std::string prev_chunk_h
         return ;
     }
 
-
-
     chunk* new_chunk =  new chunk();
     file_it->second.get_chunks().insert(std::pair<std::string,chunk&>(chunk_handle,*new_chunk));
     std::unordered_map<std::string,chunk&>::iterator  chunk_it =  file_it->second.get_chunks().find(chunk_handle);
     
-    chunk c = chunk_it->second;
+    
     std::vector<std::string> locations;
     choose_locs(locations);
+
     for(int index =0;index<locations.size();index++){
-        c.locations.push_back(locations[index]);
+        chunk_it->second.locations.push_back(locations[index]);
     }
 
     this->last_chunk.insert(std::pair<std::string,std::string>(file_path,chunk_handle));
@@ -118,7 +117,6 @@ void master_server::list_files(std::string &file_path,std::vector<std::string>& 
 
 void master_server::create_file(std::string &file_path,std::string &chunk_handle,std::vector<std::string> &locations,status_code& s)
 {
-    std::cout<<"create_file"<<std::endl;
     this->get_chunk_handle(chunk_handle);
     this->metaData.create_new_file(file_path,chunk_handle,s);
 
@@ -127,6 +125,8 @@ void master_server::create_file(std::string &file_path,std::string &chunk_handle
     }
     std::unordered_map<std::string,file>::iterator file_it = this->metaData.get_files().find(file_path);
     file f = file_it->second;
+    // std::cout<<f.get_chunks().find(chunk_handle)->first<<std::endl;
+    
     locations = f.get_chunks().find(chunk_handle)->second.locations;
 }
 
@@ -196,8 +196,9 @@ Status master_server::CreateFile(ServerContext* context,const Request* request ,
         reply->set_reply_message(s.exception);
         return Status::OK;
     }
-     
+
     std::string m_reply = chunk_handle;
+    // std::cout<<locations.size()<<std::endl;
     for(int index =0;index<locations.size();index++){
         m_reply = m_reply +std::string("|")+locations[index];
     }
