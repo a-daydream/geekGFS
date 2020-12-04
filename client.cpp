@@ -100,9 +100,9 @@ void RunClient()
     
     client clienter(grpc::CreateChannel(master_target_str,grpc::InsecureChannelCredentials()));
 
-    std::string user("master");
-    std::string reply = clienter.CreateFile(user);
-    std::cout << "Greeter received: " << reply << std::endl;
+    std::string file_name("file1");
+    std::string reply = clienter.CreateFile(file_name);
+    std::cout << "Client received: " << reply << std::endl;
 }
 
 
