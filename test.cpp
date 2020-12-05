@@ -37,13 +37,15 @@ class meta_data
 
 int main(int argc, char const *argv[])
 {
-    std::string str = "|file1|dklahsfoi";
-    std::vector<std::string> strings;
-    split( str,strings);
-    std::string file_path = strings[0];
-    std::string data = strings[1];
-    std::cout<<file_path +"/"+ data<<std::endl;
-
+    // std::string chunk_handle;
+    // for(int index=1;index <5;index++){
+    //     chunk_handle = std::to_string(index);
+    //     std::cout<<chunk_handle<<std::endl;
+    // }  
+    std::ofstream file;
+    file.open("test1",std::ios::out);
+    file<<"123456";
+    file.close();
 
     // if(argc<3){
     //     std::cout<<"Usage:" + std::string(argv[0])+ " <command> <file_path> <args>"<<std::endl;

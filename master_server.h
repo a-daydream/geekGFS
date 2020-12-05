@@ -59,7 +59,6 @@ private:
     std::map<std::string,file> files; //filepath to file
     std::map<std::string,file> chunkhandle_to_file;
     std::map<std::string,std::vector<std::string>> locations_dict;
-    std::map<std::string,std::string> last_chunk; // file path and last chunkhandle
 public:
     meta_data(std::vector<std::string> locations):locations(locations){}
     void get_latest_chunk(std::string &file_path,std::string&latest_chunk_handle);
@@ -90,7 +89,7 @@ public:
     status_code append_file(std::string &file_path,std::string &latest_chunk_handle,std::vector<std::string> &locations);
     status_code create_chunk(std::string &file_path,std::string &prev_chunk_handle,std::vector<std::string> &locations);
     void read_file(std::string &file_path,status_code& s);
-    void write_file(std::string &file_path,std::string &data,status_code& s);
+    void write_file(std::string &file_path,std::string &data,std::string& chunks,status_code& s);
     void delete_file(std::string &file_path,status_code& s);
 
 

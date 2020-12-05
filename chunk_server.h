@@ -24,6 +24,18 @@ using gfs::Request;
 using gfs::Reply;
 using gfs::ChunkServerToClient;
 
+void split(std::string str,std::vector<std::string>& chunkhandle_ports){
+    char *token;
+    char *text = (char *)str.c_str();
+    token = strtok_r(text, "|", &text);
+    while(token) {
+        chunkhandle_ports.push_back(token);
+        token = strtok_r(text, "|" , &text);
+    }
+}
+
+
+
 class chunk_server  final :public ChunkServerToClient::Service
 {
 private:
@@ -44,6 +56,7 @@ public:
 
     void create(std::string &chunk_handle,status_code& s);
     void get_chunk_space(std::string &chunk_handle,float &chunk_space,status_code& s);
+    void write(std::string &chunk_handle,std::string &data,status_code& s);
     void append(std::string &chunk_handle,std::string &data,status_code& s);
     void read(std::string &chunk_handle,status_code& s);
 

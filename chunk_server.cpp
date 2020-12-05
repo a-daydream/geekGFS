@@ -1,5 +1,14 @@
 #include"chunk_server.h"
 
+void split(std::string str,std::vector<std::string>& chunkhandle_ports){
+    char *token;
+    char *text = (char *)str.c_str();
+    token = strtok_r(text, "|", &text);
+    while(token) {
+        chunkhandle_ports.push_back(token);
+        token = strtok_r(text, "|" , &text);
+    }
+}
 
 void chunk_server::create(std::string &chunk_handle,status_code& s)
 {
@@ -27,6 +36,27 @@ void chunk_server::get_chunk_space(std::string &chunk_handle,float &chunk_space,
 
 }
 
+void chunk_server::write(std::string &chunk_handle,std::string &data,status_code& s)
+{
+    std::string file_path = this->root + "/" + chunk_handle;
+    try
+    {
+        std::ofstream file;
+        file.open(file_path,std::ios::out);
+        file<<data;
+        file.close();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        s.value = -1;
+        s.exception = "ERROR :" +std::string(e.what());
+    }
+
+    s.value = 0;
+    s.exception = "SUCCESS: "+ this->port +" writed data into " + chunk_handle;
+}
+
 void chunk_server::append(std::string &chunk_handle,std::string &data,status_code& s)
 {
 
@@ -50,7 +80,22 @@ Status chunk_server::Create(ServerContext* context,const Request* request ,Reply
 
 Status chunk_server::Write(ServerContext* context,const Request* request ,Reply* reply)
 {
+    std::vector<std::string> chunk_handle_and_data;
+    split(request->send_message(),chunk_handle_and_data);
+    std::string data = chunk_handle_and_data[1];
+    std::string chunk_handle = chunk_handle_and_data[0];
 
+    std::cout<<this->port +std::string(" WriteChunk ")+ data + " to "+ chunk_handle<<std::endl;
+    status_code s;
+    this->write(chunk_handle,data,s);
+
+    if(s.value != 0){
+        reply->set_reply_message(s.exception);
+        return Status::OK;
+    }
+
+    reply->set_reply_message(s.exception);
+    return Status::OK;
 }
 
 Status chunk_server::Read(ServerContext* context,const Request* request ,Reply* reply)
