@@ -225,11 +225,18 @@ Status master_server::ListFiles(ServerContext* context,const Request* request ,R
     std::cout<<std::string("Command list ") + file_path<<std::endl;
     std::vector<std::string> files;
     this->list_files(file_path,files);
+    
+
     std::string m_reply;
+    if(files.size()==0){
+        m_reply = file_path + " is not exist";
+        reply->set_reply_message(m_reply);
+        return Status::OK;
+    }
     for(int index =0;index<files.size();index++){
         m_reply = m_reply +std::string("|")+files[index];
     }
-
+    
     reply->set_reply_message(m_reply);
     return Status::OK;
 }

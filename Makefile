@@ -29,4 +29,5 @@ master_server: gfs.pb.o gfs.grpc.pb.o master_server.o
 	protoc --cpp_out=. $<
 
 clean:
+	rm -rf root_chunkserver/*
 	rm -f *.o *.pb.cc *.pb.h client chunk_server master_server 

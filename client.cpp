@@ -86,7 +86,7 @@ std::string client::ListFiles(const std::string & request)
     }else{
         std::cout << status.error_code() << ": " << status.error_message()
                 << std::endl;
-        return "RPC failed";
+        return "RPC failed for master server";
     }
 }
 
@@ -113,13 +113,30 @@ std::string client::CreateFile(const std::string & request)
 
 std::string client::DeleteFile(const std::string & request)
 {
+    // this send_message is a file path
+    Request master_request;
+    master_request.set_send_message(request);
 
+    Reply master_reply;
+
+    ClientContext context;
+
+    Status status = this->master_stub_->DeleteFile(&context, master_request, &master_reply);
+
+    if(status.ok()){
+        return master_reply.reply_message();
+    }else{
+        std::cout << status.error_code() << ": " << status.error_message()
+                << std::endl;
+        return "RPC failed for master server";
+    }
 }
 
 std::string client::ReadFile(const std::string & request)
 {
 
 }
+
 std::string client::WriteFile(const std::string & request)
 {
 
@@ -194,6 +211,13 @@ void RunClient(std::string command,std::string file_path,std::string args)
     }
     else if(command == "read"){
         clienter.read_file(file_path);
+    }
+    else if(command == "write"){
+        if(args.size()==0){
+            std::cout<<"No input data given to write"<<std::endl;
+        }else{
+            clienter.write_file(file_path,args);
+        }
     }
     else if(command == "delete")
     {
