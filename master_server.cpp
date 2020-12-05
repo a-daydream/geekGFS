@@ -110,7 +110,9 @@ void master_server::list_files(std::string &file_path,std::vector<std::string>& 
     file_it = this->metaData.get_files().begin();
     file_itEnd = this->metaData.get_files().end();
     while (file_it != file_itEnd){
-        this->file_list.push_back(file_it->first);
+        if(!file_it->first.compare(0,file_path.size(),file_path)){
+            files.push_back(file_it->first);
+        }
         file_it++;
     } 
 }
