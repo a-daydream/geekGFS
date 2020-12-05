@@ -41,7 +41,7 @@ void chunk_server::read(std::string &chunk_handle,status_code& s)
 Status chunk_server::Create(ServerContext* context,const Request* request ,Reply* reply)
 {
     std::string chunk_handle = request->send_message();
-    std::cout<<this->port +std::string("CreateChunk ") + chunk_handle<<std::endl;
+    std::cout<<this->port +std::string(" CreateChunk ") + chunk_handle<<std::endl;
     status_code s;
     this->create(chunk_handle,s);
     reply->set_reply_message(s.exception);

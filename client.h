@@ -31,8 +31,10 @@ public:
 
     void create_file(const std::string file_path);
     void read_file(const std::string file_path);
-    void write_file(const std::string file_path);
-    void append_file(const std::string file_path);
+    void write_file(const std::string file_path,const std::string data);
+    void append_file(const std::string file_path,const std::string data);
+    void list_file(const std::string file_path);
+    void delete_file(const std::string file_path);
 
 
     std::string ListFiles(const std::string & request);
@@ -40,7 +42,6 @@ public:
     std::string DeleteFile(const std::string & request);
     std::string ReadFile(const std::string & request);
     std::string WriteFile(const std::string & request);
-    std::string UndeleteFile(const std::string & request);
     std::string AppendFile(const std::string & request);
     
     std::string Create(const std::string & request);
@@ -53,6 +54,6 @@ public:
 };
 
 
-void RunClient();
+void RunClient(std::string command,std::string file_path,std::string args);
 
 #endif

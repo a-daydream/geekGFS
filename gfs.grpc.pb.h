@@ -85,13 +85,6 @@ class MasterServerToClient final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::gfs::Reply>> PrepareAsyncDeleteFile(::grpc::ClientContext* context, const ::gfs::Request& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::gfs::Reply>>(PrepareAsyncDeleteFileRaw(context, request, cq));
     }
-    virtual ::grpc::Status UndeleteFile(::grpc::ClientContext* context, const ::gfs::Request& request, ::gfs::Reply* response) = 0;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::gfs::Reply>> AsyncUndeleteFile(::grpc::ClientContext* context, const ::gfs::Request& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::gfs::Reply>>(AsyncUndeleteFileRaw(context, request, cq));
-    }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::gfs::Reply>> PrepareAsyncUndeleteFile(::grpc::ClientContext* context, const ::gfs::Request& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::gfs::Reply>>(PrepareAsyncUndeleteFileRaw(context, request, cq));
-    }
     class experimental_async_interface {
      public:
       virtual ~experimental_async_interface() {}
@@ -137,12 +130,6 @@ class MasterServerToClient final {
       #else
       virtual void DeleteFile(::grpc::ClientContext* context, const ::gfs::Request* request, ::gfs::Reply* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       #endif
-      virtual void UndeleteFile(::grpc::ClientContext* context, const ::gfs::Request* request, ::gfs::Reply* response, std::function<void(::grpc::Status)>) = 0;
-      #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
-      virtual void UndeleteFile(::grpc::ClientContext* context, const ::gfs::Request* request, ::gfs::Reply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
-      #else
-      virtual void UndeleteFile(::grpc::ClientContext* context, const ::gfs::Request* request, ::gfs::Reply* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
-      #endif
     };
     #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
     typedef class experimental_async_interface async_interface;
@@ -166,8 +153,6 @@ class MasterServerToClient final {
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::gfs::Reply>* PrepareAsyncWriteFileRaw(::grpc::ClientContext* context, const ::gfs::Request& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::gfs::Reply>* AsyncDeleteFileRaw(::grpc::ClientContext* context, const ::gfs::Request& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::gfs::Reply>* PrepareAsyncDeleteFileRaw(::grpc::ClientContext* context, const ::gfs::Request& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::gfs::Reply>* AsyncUndeleteFileRaw(::grpc::ClientContext* context, const ::gfs::Request& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::gfs::Reply>* PrepareAsyncUndeleteFileRaw(::grpc::ClientContext* context, const ::gfs::Request& request, ::grpc::CompletionQueue* cq) = 0;
   };
   class Stub final : public StubInterface {
    public:
@@ -221,13 +206,6 @@ class MasterServerToClient final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::gfs::Reply>> PrepareAsyncDeleteFile(::grpc::ClientContext* context, const ::gfs::Request& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::gfs::Reply>>(PrepareAsyncDeleteFileRaw(context, request, cq));
     }
-    ::grpc::Status UndeleteFile(::grpc::ClientContext* context, const ::gfs::Request& request, ::gfs::Reply* response) override;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::gfs::Reply>> AsyncUndeleteFile(::grpc::ClientContext* context, const ::gfs::Request& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::gfs::Reply>>(AsyncUndeleteFileRaw(context, request, cq));
-    }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::gfs::Reply>> PrepareAsyncUndeleteFile(::grpc::ClientContext* context, const ::gfs::Request& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::gfs::Reply>>(PrepareAsyncUndeleteFileRaw(context, request, cq));
-    }
     class experimental_async final :
       public StubInterface::experimental_async_interface {
      public:
@@ -273,12 +251,6 @@ class MasterServerToClient final {
       #else
       void DeleteFile(::grpc::ClientContext* context, const ::gfs::Request* request, ::gfs::Reply* response, ::grpc::experimental::ClientUnaryReactor* reactor) override;
       #endif
-      void UndeleteFile(::grpc::ClientContext* context, const ::gfs::Request* request, ::gfs::Reply* response, std::function<void(::grpc::Status)>) override;
-      #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
-      void UndeleteFile(::grpc::ClientContext* context, const ::gfs::Request* request, ::gfs::Reply* response, ::grpc::ClientUnaryReactor* reactor) override;
-      #else
-      void UndeleteFile(::grpc::ClientContext* context, const ::gfs::Request* request, ::gfs::Reply* response, ::grpc::experimental::ClientUnaryReactor* reactor) override;
-      #endif
      private:
       friend class Stub;
       explicit experimental_async(Stub* stub): stub_(stub) { }
@@ -304,8 +276,6 @@ class MasterServerToClient final {
     ::grpc::ClientAsyncResponseReader< ::gfs::Reply>* PrepareAsyncWriteFileRaw(::grpc::ClientContext* context, const ::gfs::Request& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::gfs::Reply>* AsyncDeleteFileRaw(::grpc::ClientContext* context, const ::gfs::Request& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::gfs::Reply>* PrepareAsyncDeleteFileRaw(::grpc::ClientContext* context, const ::gfs::Request& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::gfs::Reply>* AsyncUndeleteFileRaw(::grpc::ClientContext* context, const ::gfs::Request& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::gfs::Reply>* PrepareAsyncUndeleteFileRaw(::grpc::ClientContext* context, const ::gfs::Request& request, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_ListFiles_;
     const ::grpc::internal::RpcMethod rpcmethod_CreateFile_;
     const ::grpc::internal::RpcMethod rpcmethod_AppendFile_;
@@ -313,7 +283,6 @@ class MasterServerToClient final {
     const ::grpc::internal::RpcMethod rpcmethod_ReadFile_;
     const ::grpc::internal::RpcMethod rpcmethod_WriteFile_;
     const ::grpc::internal::RpcMethod rpcmethod_DeleteFile_;
-    const ::grpc::internal::RpcMethod rpcmethod_UndeleteFile_;
   };
   static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
 
@@ -328,7 +297,6 @@ class MasterServerToClient final {
     virtual ::grpc::Status ReadFile(::grpc::ServerContext* context, const ::gfs::Request* request, ::gfs::Reply* response);
     virtual ::grpc::Status WriteFile(::grpc::ServerContext* context, const ::gfs::Request* request, ::gfs::Reply* response);
     virtual ::grpc::Status DeleteFile(::grpc::ServerContext* context, const ::gfs::Request* request, ::gfs::Reply* response);
-    virtual ::grpc::Status UndeleteFile(::grpc::ServerContext* context, const ::gfs::Request* request, ::gfs::Reply* response);
   };
   template <class BaseClass>
   class WithAsyncMethod_ListFiles : public BaseClass {
@@ -470,27 +438,7 @@ class MasterServerToClient final {
       ::grpc::Service::RequestAsyncUnary(6, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  template <class BaseClass>
-  class WithAsyncMethod_UndeleteFile : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithAsyncMethod_UndeleteFile() {
-      ::grpc::Service::MarkMethodAsync(7);
-    }
-    ~WithAsyncMethod_UndeleteFile() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status UndeleteFile(::grpc::ServerContext* /*context*/, const ::gfs::Request* /*request*/, ::gfs::Reply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    void RequestUndeleteFile(::grpc::ServerContext* context, ::gfs::Request* request, ::grpc::ServerAsyncResponseWriter< ::gfs::Reply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(7, context, request, response, new_call_cq, notification_cq, tag);
-    }
-  };
-  typedef WithAsyncMethod_ListFiles<WithAsyncMethod_CreateFile<WithAsyncMethod_AppendFile<WithAsyncMethod_CreateChunk<WithAsyncMethod_ReadFile<WithAsyncMethod_WriteFile<WithAsyncMethod_DeleteFile<WithAsyncMethod_UndeleteFile<Service > > > > > > > > AsyncService;
+  typedef WithAsyncMethod_ListFiles<WithAsyncMethod_CreateFile<WithAsyncMethod_AppendFile<WithAsyncMethod_CreateChunk<WithAsyncMethod_ReadFile<WithAsyncMethod_WriteFile<WithAsyncMethod_DeleteFile<Service > > > > > > > AsyncService;
   template <class BaseClass>
   class ExperimentalWithCallbackMethod_ListFiles : public BaseClass {
    private:
@@ -820,58 +768,11 @@ class MasterServerToClient final {
     #endif
       { return nullptr; }
   };
-  template <class BaseClass>
-  class ExperimentalWithCallbackMethod_UndeleteFile : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    ExperimentalWithCallbackMethod_UndeleteFile() {
-    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
-      ::grpc::Service::
-    #else
-      ::grpc::Service::experimental().
-    #endif
-        MarkMethodCallback(7,
-          new ::grpc::internal::CallbackUnaryHandler< ::gfs::Request, ::gfs::Reply>(
-            [this](
-    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
-                   ::grpc::CallbackServerContext*
-    #else
-                   ::grpc::experimental::CallbackServerContext*
-    #endif
-                     context, const ::gfs::Request* request, ::gfs::Reply* response) { return this->UndeleteFile(context, request, response); }));}
-    void SetMessageAllocatorFor_UndeleteFile(
-        ::grpc::experimental::MessageAllocator< ::gfs::Request, ::gfs::Reply>* allocator) {
-    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(7);
-    #else
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::experimental().GetHandler(7);
-    #endif
-      static_cast<::grpc::internal::CallbackUnaryHandler< ::gfs::Request, ::gfs::Reply>*>(handler)
-              ->SetMessageAllocator(allocator);
-    }
-    ~ExperimentalWithCallbackMethod_UndeleteFile() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status UndeleteFile(::grpc::ServerContext* /*context*/, const ::gfs::Request* /*request*/, ::gfs::Reply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
-    virtual ::grpc::ServerUnaryReactor* UndeleteFile(
-      ::grpc::CallbackServerContext* /*context*/, const ::gfs::Request* /*request*/, ::gfs::Reply* /*response*/)
-    #else
-    virtual ::grpc::experimental::ServerUnaryReactor* UndeleteFile(
-      ::grpc::experimental::CallbackServerContext* /*context*/, const ::gfs::Request* /*request*/, ::gfs::Reply* /*response*/)
-    #endif
-      { return nullptr; }
-  };
   #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
-  typedef ExperimentalWithCallbackMethod_ListFiles<ExperimentalWithCallbackMethod_CreateFile<ExperimentalWithCallbackMethod_AppendFile<ExperimentalWithCallbackMethod_CreateChunk<ExperimentalWithCallbackMethod_ReadFile<ExperimentalWithCallbackMethod_WriteFile<ExperimentalWithCallbackMethod_DeleteFile<ExperimentalWithCallbackMethod_UndeleteFile<Service > > > > > > > > CallbackService;
+  typedef ExperimentalWithCallbackMethod_ListFiles<ExperimentalWithCallbackMethod_CreateFile<ExperimentalWithCallbackMethod_AppendFile<ExperimentalWithCallbackMethod_CreateChunk<ExperimentalWithCallbackMethod_ReadFile<ExperimentalWithCallbackMethod_WriteFile<ExperimentalWithCallbackMethod_DeleteFile<Service > > > > > > > CallbackService;
   #endif
 
-  typedef ExperimentalWithCallbackMethod_ListFiles<ExperimentalWithCallbackMethod_CreateFile<ExperimentalWithCallbackMethod_AppendFile<ExperimentalWithCallbackMethod_CreateChunk<ExperimentalWithCallbackMethod_ReadFile<ExperimentalWithCallbackMethod_WriteFile<ExperimentalWithCallbackMethod_DeleteFile<ExperimentalWithCallbackMethod_UndeleteFile<Service > > > > > > > > ExperimentalCallbackService;
+  typedef ExperimentalWithCallbackMethod_ListFiles<ExperimentalWithCallbackMethod_CreateFile<ExperimentalWithCallbackMethod_AppendFile<ExperimentalWithCallbackMethod_CreateChunk<ExperimentalWithCallbackMethod_ReadFile<ExperimentalWithCallbackMethod_WriteFile<ExperimentalWithCallbackMethod_DeleteFile<Service > > > > > > > ExperimentalCallbackService;
   template <class BaseClass>
   class WithGenericMethod_ListFiles : public BaseClass {
    private:
@@ -987,23 +888,6 @@ class MasterServerToClient final {
     }
     // disable synchronous version of this method
     ::grpc::Status DeleteFile(::grpc::ServerContext* /*context*/, const ::gfs::Request* /*request*/, ::gfs::Reply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-  };
-  template <class BaseClass>
-  class WithGenericMethod_UndeleteFile : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithGenericMethod_UndeleteFile() {
-      ::grpc::Service::MarkMethodGeneric(7);
-    }
-    ~WithGenericMethod_UndeleteFile() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status UndeleteFile(::grpc::ServerContext* /*context*/, const ::gfs::Request* /*request*/, ::gfs::Reply* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -1146,26 +1030,6 @@ class MasterServerToClient final {
     }
     void RequestDeleteFile(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncUnary(6, context, request, response, new_call_cq, notification_cq, tag);
-    }
-  };
-  template <class BaseClass>
-  class WithRawMethod_UndeleteFile : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithRawMethod_UndeleteFile() {
-      ::grpc::Service::MarkMethodRaw(7);
-    }
-    ~WithRawMethod_UndeleteFile() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status UndeleteFile(::grpc::ServerContext* /*context*/, const ::gfs::Request* /*request*/, ::gfs::Reply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    void RequestUndeleteFile(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(7, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1435,44 +1299,6 @@ class MasterServerToClient final {
       { return nullptr; }
   };
   template <class BaseClass>
-  class ExperimentalWithRawCallbackMethod_UndeleteFile : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    ExperimentalWithRawCallbackMethod_UndeleteFile() {
-    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
-      ::grpc::Service::
-    #else
-      ::grpc::Service::experimental().
-    #endif
-        MarkMethodRawCallback(7,
-          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
-            [this](
-    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
-                   ::grpc::CallbackServerContext*
-    #else
-                   ::grpc::experimental::CallbackServerContext*
-    #endif
-                     context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->UndeleteFile(context, request, response); }));
-    }
-    ~ExperimentalWithRawCallbackMethod_UndeleteFile() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status UndeleteFile(::grpc::ServerContext* /*context*/, const ::gfs::Request* /*request*/, ::gfs::Reply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
-    virtual ::grpc::ServerUnaryReactor* UndeleteFile(
-      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)
-    #else
-    virtual ::grpc::experimental::ServerUnaryReactor* UndeleteFile(
-      ::grpc::experimental::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)
-    #endif
-      { return nullptr; }
-  };
-  template <class BaseClass>
   class WithStreamedUnaryMethod_ListFiles : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
@@ -1661,36 +1487,9 @@ class MasterServerToClient final {
     // replace default version of method with streamed unary
     virtual ::grpc::Status StreamedDeleteFile(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::gfs::Request,::gfs::Reply>* server_unary_streamer) = 0;
   };
-  template <class BaseClass>
-  class WithStreamedUnaryMethod_UndeleteFile : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithStreamedUnaryMethod_UndeleteFile() {
-      ::grpc::Service::MarkMethodStreamed(7,
-        new ::grpc::internal::StreamedUnaryHandler<
-          ::gfs::Request, ::gfs::Reply>(
-            [this](::grpc::ServerContext* context,
-                   ::grpc::ServerUnaryStreamer<
-                     ::gfs::Request, ::gfs::Reply>* streamer) {
-                       return this->StreamedUndeleteFile(context,
-                         streamer);
-                  }));
-    }
-    ~WithStreamedUnaryMethod_UndeleteFile() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable regular version of this method
-    ::grpc::Status UndeleteFile(::grpc::ServerContext* /*context*/, const ::gfs::Request* /*request*/, ::gfs::Reply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    // replace default version of method with streamed unary
-    virtual ::grpc::Status StreamedUndeleteFile(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::gfs::Request,::gfs::Reply>* server_unary_streamer) = 0;
-  };
-  typedef WithStreamedUnaryMethod_ListFiles<WithStreamedUnaryMethod_CreateFile<WithStreamedUnaryMethod_AppendFile<WithStreamedUnaryMethod_CreateChunk<WithStreamedUnaryMethod_ReadFile<WithStreamedUnaryMethod_WriteFile<WithStreamedUnaryMethod_DeleteFile<WithStreamedUnaryMethod_UndeleteFile<Service > > > > > > > > StreamedUnaryService;
+  typedef WithStreamedUnaryMethod_ListFiles<WithStreamedUnaryMethod_CreateFile<WithStreamedUnaryMethod_AppendFile<WithStreamedUnaryMethod_CreateChunk<WithStreamedUnaryMethod_ReadFile<WithStreamedUnaryMethod_WriteFile<WithStreamedUnaryMethod_DeleteFile<Service > > > > > > > StreamedUnaryService;
   typedef Service SplitStreamedService;
-  typedef WithStreamedUnaryMethod_ListFiles<WithStreamedUnaryMethod_CreateFile<WithStreamedUnaryMethod_AppendFile<WithStreamedUnaryMethod_CreateChunk<WithStreamedUnaryMethod_ReadFile<WithStreamedUnaryMethod_WriteFile<WithStreamedUnaryMethod_DeleteFile<WithStreamedUnaryMethod_UndeleteFile<Service > > > > > > > > StreamedService;
+  typedef WithStreamedUnaryMethod_ListFiles<WithStreamedUnaryMethod_CreateFile<WithStreamedUnaryMethod_AppendFile<WithStreamedUnaryMethod_CreateChunk<WithStreamedUnaryMethod_ReadFile<WithStreamedUnaryMethod_WriteFile<WithStreamedUnaryMethod_DeleteFile<Service > > > > > > > StreamedService;
 };
 
 class ChunkServerToClient final {

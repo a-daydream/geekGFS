@@ -35,20 +35,29 @@ class meta_data
 //         << " paused " << n << " seconds" << std::endl;
 // }
 
-int main(int argc, char** argv)
+int main(int argc, char const *argv[])
 {
 
+    if(argc<3){
+        std::cout<<"Usage:" + std::string(argv[0])+ " <command> <file_path> <args>"<<std::endl;
+    }
+
+    std::string argv3;
+    for(int index=3 ;index<argc;index++){
+        argv3 = argv3 + "|"+ std::string(argv[index]);
+    }
+    std::cout << (std::string(argv[1]) == "create")<<std::endl;
     // std::string root = "root_chunkserver";
     // if(!access(root.c_str(),F_OK)){
     //     std::cout<<"1"<<std::endl;
     //     mkdir(root.c_str(),MODE);
     // }
-    std::string root = "./root_chunkserver/root1";
+    // std::string root = "./root_chunkserver/root1";
     
-    if(access(root.c_str(),F_OK)){
-        std::cout<<"2"<<std::endl;
-        mkdir(root.c_str(),MODE);
-    }
+    // if(access(root.c_str(),F_OK)){
+    //     std::cout<<"2"<<std::endl;
+    //     mkdir(root.c_str(),MODE);
+    // }
     // std::thread threads[5];
     // std::cout << "Spawning 5 threads...\n";
     // for (int i = 0; i < 5; i++) {

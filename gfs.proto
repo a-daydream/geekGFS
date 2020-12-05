@@ -10,7 +10,6 @@ service MasterServerToClient {
     rpc ReadFile(Request) returns (Reply) {}
     rpc WriteFile(Request) returns (Reply) {}
     rpc DeleteFile(Request) returns (Reply) {}
-    rpc UndeleteFile(Request) returns (Reply) {}
 }
 
 service ChunkServerToClient {
