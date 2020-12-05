@@ -1,6 +1,6 @@
 #include"utility.h"
 #include <uuid/uuid.h>
-#include<unordered_map>
+#include<map>
 #include<cstring>
 #include<iostream>
 #include<fstream>
@@ -22,10 +22,10 @@ void split(std::string str,std::vector<std::string>& chunkhandle_ports){
 class meta_data
 {
     private:
-        std::unordered_map<std::string,std::string> files;
+        std::map<std::string,std::string> files;
     public:
         meta_data(){}
-        std::unordered_map<std::string,std::string>& get_files(){return this->files;};
+        std::map<std::string,std::string>& get_files(){return this->files;};
 };
 
 // void thread_task(int n) {
@@ -37,15 +37,25 @@ class meta_data
 
 int main(int argc, char const *argv[])
 {
+   
+    std::map<std::string,std::string> test;
+    test.insert(std::pair<std::string,std::string>("a","a"));
+    test.insert(std::pair<std::string,std::string>("b","b"));
+    test.insert(std::pair<std::string,std::string>("c","c"));
+    std::map<std::string,std::string>::iterator it = test.begin();
+    std::string temp = it->first;
+    it++;
+    test.erase(temp);
+    std::cout<<it->first<< temp <<std::endl;
     // std::string chunk_handle;
     // for(int index=1;index <5;index++){
     //     chunk_handle = std::to_string(index);
     //     std::cout<<chunk_handle<<std::endl;
     // }  
-    std::ofstream file;
-    file.open("test1",std::ios::out);
-    file<<"123456";
-    file.close();
+    // std::ofstream file;
+    // file.open("test1",std::ios::out);
+    // file<<"123456";
+    // file.close();
 
     // if(argc<3){
     //     std::cout<<"Usage:" + std::string(argv[0])+ " <command> <file_path> <args>"<<std::endl;

@@ -7,6 +7,7 @@
 #include <string>
 #include <cstring>
 #include <grpcpp/grpcpp.h>
+#include"utility.h"
 
 #include"gfs.grpc.pb.h"
 

@@ -1,6 +1,6 @@
 #include"master_server.h"
 
-void split(std::string str,std::vector<std::string>& strings){
+void split_master(std::string str,std::vector<std::string>& strings){
     char *token;
     char *text = (char *)str.c_str();
     token = strtok_r(text, "|", &text);
@@ -12,10 +12,12 @@ void split(std::string str,std::vector<std::string>& strings){
 
 void meta_data::get_latest_chunk(std::string &file_path,std::string&latest_chunk_handle)
 {
-    latest_chunk_handle = this->files.find(file_path)->second.get_chunks().rbegin()->first;
+    if(this->files.find(file_path)->second.get_chunks().size()>0){
+        latest_chunk_handle = this->files.find(file_path)->second.get_chunks().rbegin()->first;
+    }
 }
 
-void meta_data::get_chunk_locations(const std::string chunk_handle,std::vector<std::string>& chunk_location)
+void meta_data::get_chunk_locations(const std::string& chunk_handle,std::vector<std::string>& chunk_location)
 {
     std::map<std::string,file>::iterator file_it = this->chunkhandle_to_file.find(chunk_handle);
     file f = file_it->second;
@@ -24,8 +26,9 @@ void meta_data::get_chunk_locations(const std::string chunk_handle,std::vector<s
     chunk_location = chunk_it->second.locations;
 }
 
-void meta_data::create_new_file(std::string &file_path,std::string chunk_handle,status_code& s)
+void meta_data::create_new_file(std::string &file_path,std::string& chunk_handle,status_code& s)
 {
+    
     std::map<std::string,file>::iterator file_it = this->files.find(file_path);
     std::map<std::string,file>::iterator file_end = this->files.end();
     if(file_it != file_end){
@@ -35,11 +38,12 @@ void meta_data::create_new_file(std::string &file_path,std::string chunk_handle,
     }
     this->files.insert(std::pair<std::string,file>(file_path,file(file_path)));
     chunk_handle = "1" + chunk_handle;
-    this->create_new_chunk(file_path,std::to_string(-1),chunk_handle,s);
+    std::string prev_chunk_handle = "-1";
+    this->create_new_chunk(file_path,prev_chunk_handle,chunk_handle,s);
 }
 
 //to_do
-void meta_data::create_new_chunk(std::string &file_path,std::string prev_chunk_handle,std::string chunk_handle,status_code& s)
+void meta_data::create_new_chunk(std::string &file_path,std::string& prev_chunk_handle,std::string& chunk_handle,status_code& s)
 {
     // std::cout<<"create_new_chunk"<<std::endl;
     std::map<std::string,file>::iterator file_it = this->files.find(file_path);
@@ -73,7 +77,7 @@ void meta_data::create_new_chunk(std::string &file_path,std::string prev_chunk_h
     for(int index =0;index<locations.size();index++){
         chunk_it->second.locations.push_back(locations[index]);
     }
-
+    
     s.value = 0;
     s.exception = std::string("New Chunk Created");
 }
@@ -130,6 +134,7 @@ void master_server::create_file(std::string &file_path,std::string &chunk_handle
     if(s.value != 0){
         return ;
     }
+
     std::map<std::string,file>::iterator file_it = this->metaData.get_files().find(file_path);
     file f = file_it->second;
     // std::cout<<f.get_chunks().find(chunk_handle)->first<<std::endl;
@@ -196,23 +201,56 @@ void master_server::write_file(std::string &file_path,std::string& data,std::str
 
     gfs_config config;
     int chunk_num  = data.size() / config.chunk_size + 1;
-
-    this->metaData.get_files().find(file_path)->second.get_chunks().clear();
-    std::string chunk_handle;
-    for(int index=1;index <chunk_num+1;index++){
-        this->get_chunk_handle(chunk_handle);
-        chunk_handle = std::to_string(index) + chunk_handle;
-        chunks = chunks +"|"+ chunk_handle;
-
-        chunk* c = new chunk();
-        std::vector<std::string> locations;
-        choose_locs(locations);
-        c->locations = locations;
-        for(int j=0;j<locations.size();j++){
-            chunks = chunks +"|"+ locations[j];
+    int pre_size = this->metaData.get_files().find(file_path)->second.get_chunks().size();
+    std::map<std::string, chunk &>::iterator chunk_begin = this->metaData.get_files().find(file_path)->second.get_chunks().begin();
+    std::map<std::string, chunk &>::iterator chunk_end = this->metaData.get_files().find(file_path)->second.get_chunks().end();
+    
+    if(chunk_num <= pre_size){
+        int temp_chunk_num = 0;
+        while(temp_chunk_num<chunk_num){
+            chunks = chunks + "|" + chunk_begin->first;
+            for(int j=0;j<chunk_begin->second.locations.size();j++){
+                chunks = chunks +"|"+ chunk_begin->second.locations[j];
+            }
+            chunk_begin++;
+            temp_chunk_num++;
         }
-        this->metaData.get_files().find(file_path)->second.get_chunks().insert(std::pair<std::string,chunk&>(chunk_handle,*c));
-    }   
+
+        while(chunk_begin!=chunk_end){
+            std::string to_delete = chunk_begin->first;
+            chunk_begin++;
+            this->metaData.get_files().find(file_path)->second.get_chunks().erase(to_delete);
+        }
+
+    }else{
+        int add_num = chunk_num - pre_size+1;
+        while(chunk_begin!=chunk_end){
+            chunks = chunks + "|" + chunk_begin->first;
+            for(int j=0;j<chunk_begin->second.locations.size();j++){
+                chunks = chunks +"|"+ chunk_begin->second.locations[j];
+            }
+            chunk_begin++;
+        }
+        std::string chunk_handle;
+        int add_index = 1;
+        while(add_index<add_num){
+            this->get_chunk_handle(chunk_handle);
+            chunk_handle = std::to_string(add_index+pre_size) + chunk_handle;
+            chunks = chunks +"|"+ chunk_handle;
+
+            chunk* c = new chunk();
+            std::vector<std::string> locations;
+            choose_locs(locations);
+            c->locations = locations;
+            for(int j=0;j<locations.size();j++){
+                chunks = chunks +"|"+ locations[j];
+            }
+            this->metaData.get_files().find(file_path)->second.get_chunks().insert(std::pair<std::string,chunk&>(chunk_handle,*c));
+        }
+    }
+
+    s.value=0;
+    s.exception = std::string("SUCCESS: file ") + file_path + std::string(" is writed");
 }
 
 
@@ -225,7 +263,7 @@ Status master_server::CreateFile(ServerContext* context,const Request* request ,
     std::vector<std::string> locations;
     status_code s;
     this->create_file(file_path,chunk_handle,locations,s);
-
+    std::cout<<s.exception<<std::endl;
     if(s.value !=0){
         reply->set_reply_message(s.exception);
         return Status::OK;
@@ -286,7 +324,7 @@ Status master_server::CreateChunk(ServerContext* context,const Request* request 
 Status master_server::WriteFile(ServerContext* context,const Request* request ,Reply* reply) 
 {
     std::vector<std::string> strings;
-    split( request->send_message(),strings);
+    split_master( request->send_message(),strings);
     std::string file_path = strings[0];
     std::string data = strings[1];
     std::cout<<std::string("Command write ")  +data +" to "+ file_path<<std::endl;

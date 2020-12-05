@@ -62,9 +62,9 @@ private:
 public:
     meta_data(std::vector<std::string> locations):locations(locations){}
     void get_latest_chunk(std::string &file_path,std::string&latest_chunk_handle);
-    void get_chunk_locations(const std::string chunk_handle,std::vector<std::string>& chunk_location);
-    void create_new_file(std::string &file_path,std::string chunk_handle,status_code& s);
-    void create_new_chunk(std::string &file_path,std::string prev_chunk_handle,std::string chunk_handle,status_code& s);
+    void get_chunk_locations(const std::string& chunk_handle,std::vector<std::string>& chunk_location);
+    void create_new_file(std::string &file_path,std::string& chunk_handle,status_code& s);
+    void create_new_chunk(std::string &file_path,std::string& prev_chunk_handle,std::string& chunk_handle,status_code& s);
     void delete_file(std::string &file_path);
     std::map<std::string,file>& get_files(){return this->files;};
     ~meta_data(){}

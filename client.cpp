@@ -1,13 +1,11 @@
 #include"client.h"
 
-
-
-void split(std::string str,std::vector<std::string>& chunkhandle_ports){
+void split2(std::string str,std::vector<std::string>& strings){
     char *token;
     char *text = (char *)str.c_str();
     token = strtok_r(text, "|", &text);
     while(token) {
-        chunkhandle_ports.push_back(token);
+        strings.push_back(token);
         token = strtok_r(text, "|" , &text);
     }
 }
@@ -34,7 +32,7 @@ void client::create_file(const std::string file_path)
     }
 
     std::vector<std::string> data;
-    split(master_reply,data);
+    split2(master_reply,data);
 
     std::string chunk_handle = data[0];
     std::string chunkserver_port;
@@ -70,13 +68,15 @@ void client::write_file(const std::string file_path,const std::string data)
     }
 
     std::vector<std::string> chunkhandle_locations;
-    split(master_reply,chunkhandle_locations);
+    split2(master_reply,chunkhandle_locations);
 
+    std::cout<<"write_file " <<chunkhandle_locations.size()<<std::endl;
     std::vector<std::string> ports;
     std::string chunk_handle;
     std::string chunk_data_towrite;
     int size = chunkhandle_locations.size();
-    for(int index =0;index<size;index++){
+    int index;
+    for(index =0;index<size;index++){
         if(index%4 == 0){
             chunk_handle = chunkhandle_locations[index];
             for(int port_num=0;port_num<ports.size();port_num++){
@@ -92,6 +92,16 @@ void client::write_file(const std::string file_path,const std::string data)
             continue;
         }
         ports.push_back(chunkhandle_locations[index]);
+    }
+    
+    for(int port_num=0;port_num<ports.size();port_num++){
+        this->set_chunkserver_stub_(grpc::CreateChannel("localhost:"+ports[port_num],grpc::InsecureChannelCredentials()));
+        int send_data_start = (index/4)*64;
+        int send_data_end = send_data_start + 63;
+        if(send_data_end > data.size()) send_data_end = data.size();
+        std::string send_data = chunk_handle + "|"+ data.substr(send_data_start,send_data_end);
+        std::string chunk_reply = this->Write(send_data);
+        std::cout << "Response from chunkserver: " << master_reply << std::endl;
     }
 
 }

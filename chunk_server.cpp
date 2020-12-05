@@ -1,11 +1,11 @@
 #include"chunk_server.h"
 
-void split(std::string str,std::vector<std::string>& chunkhandle_ports){
+void split1(std::string str,std::vector<std::string>& strings){
     char *token;
     char *text = (char *)str.c_str();
     token = strtok_r(text, "|", &text);
     while(token) {
-        chunkhandle_ports.push_back(token);
+        strings.push_back(token);
         token = strtok_r(text, "|" , &text);
     }
 }
@@ -39,6 +39,7 @@ void chunk_server::get_chunk_space(std::string &chunk_handle,float &chunk_space,
 void chunk_server::write(std::string &chunk_handle,std::string &data,status_code& s)
 {
     std::string file_path = this->root + "/" + chunk_handle;
+    std::cout<<"write " << file_path<<std::endl;
     try
     {
         std::ofstream file;
@@ -80,8 +81,9 @@ Status chunk_server::Create(ServerContext* context,const Request* request ,Reply
 
 Status chunk_server::Write(ServerContext* context,const Request* request ,Reply* reply)
 {
+    std::cout<<"Write "<<std::endl;
     std::vector<std::string> chunk_handle_and_data;
-    split(request->send_message(),chunk_handle_and_data);
+    split1(request->send_message(),chunk_handle_and_data);
     std::string data = chunk_handle_and_data[1];
     std::string chunk_handle = chunk_handle_and_data[0];
 
