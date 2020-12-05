@@ -93,10 +93,10 @@ void client::write_file(const std::string file_path,const std::string data)
         }
         ports.push_back(chunkhandle_locations[index]);
     }
-    
+
     for(int port_num=0;port_num<ports.size();port_num++){
         this->set_chunkserver_stub_(grpc::CreateChannel("localhost:"+ports[port_num],grpc::InsecureChannelCredentials()));
-        int send_data_start = (index/4)*64;
+        int send_data_start = ((index-1)/4)*64;
         int send_data_end = send_data_start + 63;
         if(send_data_end > data.size()) send_data_end = data.size();
         std::string send_data = chunk_handle + "|"+ data.substr(send_data_start,send_data_end);
