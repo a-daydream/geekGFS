@@ -13,6 +13,7 @@
 #include<unordered_map>
 #include"cstdlib"
 #include"ctime"
+#include"chunk_server.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;

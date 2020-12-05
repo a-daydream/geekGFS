@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include<sys/stat.h>
 #include<iostream>
+#include<fstream>
+#include"thread"
 #include<memory>
 #include<string>
 #include <grpcpp/grpcpp.h>
@@ -12,6 +14,7 @@
 
 #include"gfs.grpc.pb.h"
 
+#define MODE (S_IRWXU | S_IRWXG | S_IRWXO)  
 using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
@@ -30,16 +33,19 @@ public:
     chunk_server(std::string &port,std::string &root)
     {
         this->port = port;
-        this->root = root;
-        if(access(root.c_str(),0)){
-            mkdir(root.c_str(),S_IRUSR | S_IWUSR | S_IXUSR | S_IRWXG | S_IRWXO);
+        this->root = "./" + root + "/" + port;
+        if(access(root.c_str(),F_OK)){
+            mkdir(root.c_str(),MODE);
+        }
+        if(access(this->root.c_str(),F_OK)){
+            mkdir(this->root.c_str(),MODE);
         }
     }
 
-    status_code create(std::string &chunk_handle);
-    status_code get_chunk_space(std::string &chunk_handle,float &chunk_space);
-    status_code append(std::string &chunk_handle,std::string &data);
-    status_code read(std::string &chunk_handle);
+    void create(std::string &chunk_handle,status_code& s);
+    void get_chunk_space(std::string &chunk_handle,float &chunk_space,status_code& s);
+    void append(std::string &chunk_handle,std::string &data,status_code& s);
+    void read(std::string &chunk_handle,status_code& s);
 
 
     Status Create(ServerContext* context,const Request* request ,Reply* reply) override;

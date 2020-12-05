@@ -21,36 +21,25 @@ void client::set_chunkserver_stub_(std::shared_ptr<Channel> chunkserver_channel)
 
 void client::create_file(const std::string file_path)
 {
-    std::string reply = this->CreateFile(file_path);
-    std::cout << "Response from masterserver: " << reply << std::endl;
+    std::string master_reply = this->CreateFile(file_path);
+    std::cout << "Response from masterserver: " << master_reply << std::endl;
 
     std::string prefix("ERROR");
-    if(!reply.compare(0,prefix.size(),prefix)){
+    if(!master_reply.compare(0,prefix.size(),prefix)){
         return ;
     }
 
     std::vector<std::string> data;
-    split(reply,data);
+    split(master_reply,data);
 
     std::string chunk_handle = data[0];
     std::string chunkserver_port;
+    std::string chunkserver_reply;
     for(int index=1;index<data.size();index++){
         chunkserver_port = std::string("localhost:")+data[index];
         this->set_chunkserver_stub_(grpc::CreateChannel(chunkserver_port,grpc::InsecureChannelCredentials()));
-
-        Request chunkserver_request;
-        chunkserver_request.set_send_message(chunk_handle);
-
-        Reply chunkserver_reply;
-
-        ClientContext context;
-        Status status = this->chunkserver_stub_->Create(&context, chunkserver_request, &chunkserver_reply);
-        if(status.ok()){
-            std::cout<<chunkserver_reply.reply_message()<<std::endl;
-        }else{
-            std::cout << status.error_code() << ": " << status.error_message()<< std::endl;
-            std::cout<<"RPC failed for clientserver "<<chunkserver_port<<std::endl;
-        }
+        chunkserver_reply = this->Create(chunk_handle);
+        std::cout << "Response from chunkserver: " << chunkserver_reply << std::endl;
     }
 
 }
@@ -109,7 +98,7 @@ std::string client::CreateFile(const std::string & request)
     }else{
         std::cout << status.error_code() << ": " << status.error_message()
                 << std::endl;
-        return "RPC failed";
+        return "RPC failed for master server";
     }
     
 }
@@ -140,8 +129,21 @@ std::string client::AppendFile(const std::string & request)
  //RPC for chunkserver   
 std::string client::Create(const std::string & request)
 {
+        Request chunkserver_request;
+        chunkserver_request.set_send_message(request);
 
+        Reply chunkserver_reply;
+
+        ClientContext context;
+        Status status = this->chunkserver_stub_->Create(&context, chunkserver_request, &chunkserver_reply);
+        if(status.ok()){
+            return chunkserver_reply.reply_message();
+        }else{
+            std::cout << status.error_code() << ": " << status.error_message()<< std::endl;
+            return "RPC failed for clientserver ";
+        }
 }
+
 std::string client::GetChunkSpace(const std::string & request)
 {
 

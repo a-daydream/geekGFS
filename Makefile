@@ -1,7 +1,8 @@
 LDFLAGS = -L/usr/local/lib `pkg-config --libs protobuf grpc++`\
            -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed\
            -ldl\
-		   -luuid
+		   -luuid\
+		   -lpthread
 
 CXX = g++
 CPPFLAGS += `pkg-config --cflags protobuf grpc`
@@ -10,9 +11,12 @@ CXXFLAGS += -std=c++11
 GRPC_CPP_PLUGIN = grpc_cpp_plugin
 GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
 
-all: client master_server
+all: client master_server chunk_server
 
 client: gfs.pb.o gfs.grpc.pb.o client.o
+	$(CXX) $^ $(LDFLAGS) -o $@
+
+chunk_server: gfs.pb.o gfs.grpc.pb.o chunk_server.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 
 master_server: gfs.pb.o gfs.grpc.pb.o master_server.o
@@ -25,4 +29,4 @@ master_server: gfs.pb.o gfs.grpc.pb.o master_server.o
 	protoc --cpp_out=. $<
 
 clean:
-	rm -f *.o *.pb.cc *.pb.h client master_server
+	rm -f *.o *.pb.cc *.pb.h client chunk_server master_server 

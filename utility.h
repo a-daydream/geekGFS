@@ -18,19 +18,4 @@ struct gfs_config
     std::string chunk_server_root = "root_chunkserver";
 };
 
-
-bool isInt(std::string s)
-{
-    try
-    {
-        s = std::stoi(s);
-    }
-    catch(const std::exception& e)
-    {
-        return false;
-    }
-    return true;
-}
-
-
 #endif

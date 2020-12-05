@@ -269,7 +269,7 @@ void RunMasterServer()
     builder.RegisterService(&service);
 
     std::unique_ptr<Server> server(builder.BuildAndStart());
-    std::cout << "Server listening on " << server_address << std::endl;
+    std::cout << "Master Server listening on " << server_address << std::endl;
 
     server->Wait();
 }

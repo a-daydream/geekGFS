@@ -2,6 +2,12 @@
 #include <uuid/uuid.h>
 #include<unordered_map>
 #include<cstring>
+#include<iostream>
+#include<fstream>
+#include"thread"
+#include<sys/stat.h>
+#include <unistd.h>
+#define MODE (S_IRWXU | S_IRWXG | S_IRWXO)  
 
 void split(std::string str,std::vector<std::string>& chunkhandle_ports){
     char *token;
@@ -22,16 +28,60 @@ class meta_data
         std::unordered_map<std::string,std::string>& get_files(){return this->files;};
 };
 
+// void thread_task(int n) {
+//     std::this_thread::sleep_for(std::chrono::seconds(n));
+//     std::cout << "hello thread "
+//         << std::this_thread::get_id()
+//         << " paused " << n << " seconds" << std::endl;
+// }
 
 int main(int argc, char** argv)
 {
-    std::string s = "e7f3bab0-48d8-4fc2-b0fd-d257c4657cb2|50056|50052|50053";
-    std::vector<std::string> test;
-    split(s,test);
 
-    for(int index = 0;index<test.size();index++){
-        std::cout<<test[index]<<std::endl;
+    // std::string root = "root_chunkserver";
+    // if(!access(root.c_str(),F_OK)){
+    //     std::cout<<"1"<<std::endl;
+    //     mkdir(root.c_str(),MODE);
+    // }
+    std::string root = "./root_chunkserver/root1";
+    
+    if(access(root.c_str(),F_OK)){
+        std::cout<<"2"<<std::endl;
+        mkdir(root.c_str(),MODE);
     }
+    // std::thread threads[5];
+    // std::cout << "Spawning 5 threads...\n";
+    // for (int i = 0; i < 5; i++) {
+    //     threads[i] = std::thread(thread_task, i + 1);
+    // }
+    // std::cout << "Done spawning threads! Now wait for them to join\n";
+    // for (auto& t: threads) {
+    //     t.join();
+    // }
+    // std::cout << "All threads joined.\n";
+
+    // return EXIT_SUCCESS;
+
+
+    // try
+    // {
+    //     std::ofstream file;
+    //     file.open("test1",std::ios::out);
+    // }
+    // catch(const std::exception& e)
+    // {
+    //     std::cerr << e.what() << '\n';
+    // }
+    
+
+
+    // std::string s = "e7f3bab0-48d8-4fc2-b0fd-d257c4657cb2|50056|50052|50053";
+    // std::vector<std::string> test;
+    // split(s,test);
+
+    // for(int index = 0;index<test.size();index++){
+    //     std::cout<<test[index]<<std::endl;
+    // }
 
     
     // meta_data*m = new meta_data();
