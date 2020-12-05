@@ -37,16 +37,23 @@ class meta_data
 
 int main(int argc, char const *argv[])
 {
+    std::string str = "|file1|dklahsfoi";
+    std::vector<std::string> strings;
+    split( str,strings);
+    std::string file_path = strings[0];
+    std::string data = strings[1];
+    std::cout<<file_path +"/"+ data<<std::endl;
 
-    if(argc<3){
-        std::cout<<"Usage:" + std::string(argv[0])+ " <command> <file_path> <args>"<<std::endl;
-    }
 
-    std::string argv3;
-    for(int index=3 ;index<argc;index++){
-        argv3 = argv3 + "|"+ std::string(argv[index]);
-    }
-    std::cout << (std::string(argv[1]) == "create")<<std::endl;
+    // if(argc<3){
+    //     std::cout<<"Usage:" + std::string(argv[0])+ " <command> <file_path> <args>"<<std::endl;
+    // }
+
+    // std::string argv3;
+    // for(int index=3 ;index<argc;index++){
+    //     argv3 = argv3 + "|"+ std::string(argv[index]);
+    // }
+    // std::cout << (std::string(argv[1]) == "create")<<std::endl;
     // std::string root = "root_chunkserver";
     // if(!access(root.c_str(),F_OK)){
     //     std::cout<<"1"<<std::endl;

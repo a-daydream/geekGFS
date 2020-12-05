@@ -1,8 +1,18 @@
 #include"master_server.h"
 
+void split(std::string str,std::vector<std::string>& strings){
+    char *token;
+    char *text = (char *)str.c_str();
+    token = strtok_r(text, "|", &text);
+    while(token) {
+        strings.push_back(token);
+        token = strtok_r(text, "|" , &text);
+    }
+}
+
 void meta_data::get_latest_chunk(std::string &file_path,std::string&latest_chunk_handle)
 {
-    std::unordered_map<std::string,std::string>::iterator last_it = this->last_chunk.find(file_path);
+    std::map<std::string,std::string>::iterator last_it = this->last_chunk.find(file_path);
     if(last_it == this->last_chunk.end())
     {
         return ;
@@ -12,17 +22,17 @@ void meta_data::get_latest_chunk(std::string &file_path,std::string&latest_chunk
 
 void meta_data::get_chunk_locations(const std::string chunk_handle,std::vector<std::string>& chunk_location)
 {
-    std::unordered_map<std::string,file>::iterator file_it = this->chunkhandle_to_file.find(chunk_handle);
+    std::map<std::string,file>::iterator file_it = this->chunkhandle_to_file.find(chunk_handle);
     file f = file_it->second;
-    std::unordered_map<std::string,chunk&> chunks = f.get_chunks(); 
-    std::unordered_map<std::string,chunk&>::iterator chunk_it = chunks.find(chunk_handle);
+    std::map<std::string,chunk&> chunks = f.get_chunks(); 
+    std::map<std::string,chunk&>::iterator chunk_it = chunks.find(chunk_handle);
     chunk_location = chunk_it->second.locations;
 }
 
 void meta_data::create_new_file(std::string &file_path,std::string chunk_handle,status_code& s)
 {
-    std::unordered_map<std::string,file>::iterator file_it = this->files.find(file_path);
-    std::unordered_map<std::string,file>::iterator file_end = this->files.end();
+    std::map<std::string,file>::iterator file_it = this->files.find(file_path);
+    std::map<std::string,file>::iterator file_end = this->files.end();
     if(file_it != file_end){
         s.value = -1;
         s.exception = std::string("ERROR: File exists already:") + file_path;
@@ -36,8 +46,8 @@ void meta_data::create_new_file(std::string &file_path,std::string chunk_handle,
 void meta_data::create_new_chunk(std::string &file_path,std::string prev_chunk_handle,std::string chunk_handle,status_code& s)
 {
     // std::cout<<"create_new_chunk"<<std::endl;
-    std::unordered_map<std::string,file>::iterator file_it = this->files.find(file_path);
-    std::unordered_map<std::string,file>::iterator file_end = this->files.end();
+    std::map<std::string,file>::iterator file_it = this->files.find(file_path);
+    std::map<std::string,file>::iterator file_end = this->files.end();
 
     if(file_it == file_end){
         s.value = -2;
@@ -58,7 +68,7 @@ void meta_data::create_new_chunk(std::string &file_path,std::string prev_chunk_h
 
     chunk* new_chunk =  new chunk();
     file_it->second.get_chunks().insert(std::pair<std::string,chunk&>(chunk_handle,*new_chunk));
-    std::unordered_map<std::string,chunk&>::iterator  chunk_it =  file_it->second.get_chunks().find(chunk_handle);
+    std::map<std::string,chunk&>::iterator  chunk_it =  file_it->second.get_chunks().find(chunk_handle);
     
     
     std::vector<std::string> locations;
@@ -75,7 +85,7 @@ void meta_data::create_new_chunk(std::string &file_path,std::string prev_chunk_h
 
 void meta_data::delete_file(std::string &file_path)
 {
-    std::unordered_map<std::string,file>::iterator file_it = this->files.find(file_path);
+    std::map<std::string,file>::iterator file_it = this->files.find(file_path);
     this->files.erase(file_it);
 }
 
@@ -93,7 +103,7 @@ void master_server::get_chunk_handle(std::string & s_uuid)
 
 void master_server::check_valid_file(std::string &file_path,status_code& s)
 {
-    std::unordered_map<std::string,file>::iterator file_it = this->metaData.get_files().find(file_path);
+    std::map<std::string,file>::iterator file_it = this->metaData.get_files().find(file_path);
     if(file_it == this->metaData.get_files().end()){
         s.value = -1;
         s.exception = std::string("ERROR: file ") + file_path + std::string("doesn't exist");
@@ -105,8 +115,8 @@ void master_server::check_valid_file(std::string &file_path,status_code& s)
 
 void master_server::list_files(std::string &file_path,std::vector<std::string>& files)
 {
-    std::unordered_map<std::string,file>::iterator file_it;
-    std::unordered_map<std::string,file>::iterator file_itEnd;
+    std::map<std::string,file>::iterator file_it;
+    std::map<std::string,file>::iterator file_itEnd;
     file_it = this->metaData.get_files().begin();
     file_itEnd = this->metaData.get_files().end();
     while (file_it != file_itEnd){
@@ -125,7 +135,7 @@ void master_server::create_file(std::string &file_path,std::string &chunk_handle
     if(s.value != 0){
         return ;
     }
-    std::unordered_map<std::string,file>::iterator file_it = this->metaData.get_files().find(file_path);
+    std::map<std::string,file>::iterator file_it = this->metaData.get_files().find(file_path);
     file f = file_it->second;
     // std::cout<<f.get_chunks().find(chunk_handle)->first<<std::endl;
     
@@ -148,9 +158,9 @@ void master_server::read_file(std::string &file_path,status_code& s)
     if(s.value !=0){
         return ;
     }
-    std::unordered_map<std::string,chunk&> chunks= this->metaData.get_files().find(file_path)->second.get_chunks();
-    std::unordered_map<std::string,chunk&>::iterator chunks_it = chunks.begin();
-    std::unordered_map<std::string,chunk&>::iterator chunks_end = chunks.end();
+    std::map<std::string,chunk&> chunks= this->metaData.get_files().find(file_path)->second.get_chunks();
+    std::map<std::string,chunk&>::iterator chunks_it = chunks.begin();
+    std::map<std::string,chunk&>::iterator chunks_end = chunks.end();
     
     std::vector<std::string> all_chunk_handles;
     while (chunks_it != chunks_end){
@@ -182,6 +192,25 @@ void master_server::delete_file(std::string &file_path,status_code& s)
     s.exception = std::string("SUCCESS: file ") + file_path + std::string(" is deleted");
 }
 
+void master_server::write_file(std::string &file_path,std::string& data,status_code& s)
+{
+    this->check_valid_file(file_path,s);
+    if(s.value != 0){
+        return ;
+    }
+
+    gfs_config config;
+    int chunk_num  = data.size() / config.chunk_size + 1;
+    int pre_chunk_num = this->metaData.get_files().find(file_path)->second.get_chunks().size();
+    if(chunk_num < pre_chunk_num){
+        this->metaData.get_files().find(file_path)->second.get_chunks();
+    }
+    
+    std::string last_chunk;
+    this->metaData.get_latest_chunk(file_path,last_chunk);
+
+
+}
 
 
 
@@ -200,7 +229,6 @@ Status master_server::CreateFile(ServerContext* context,const Request* request ,
     }
 
     std::string m_reply = chunk_handle;
-    // std::cout<<locations.size()<<std::endl;
     for(int index =0;index<locations.size();index++){
         m_reply = m_reply +std::string("|")+locations[index];
     }
@@ -253,7 +281,21 @@ Status master_server::CreateChunk(ServerContext* context,const Request* request 
 
 Status master_server::WriteFile(ServerContext* context,const Request* request ,Reply* reply) 
 {
-    std::string file_path = request->send_message();
+    std::vector<std::string> strings;
+    split( request->send_message(),strings);
+    std::string file_path = strings[0];
+    std::string data = strings[1];
+    std::cout<<std::string("Command write ")  +data +" to "+ file_path<<std::endl;
+    status_code s;
+    this->write_file(file_path,data,s);
+
+    if(s.value !=0){
+        reply->set_reply_message(s.exception);
+        return Status::OK;
+    }
+    
+    reply->set_reply_message(s.exception);
+    return Status::OK;
 }
 
 Status master_server::AppendFile(ServerContext* context,const Request* request ,Reply* reply) 

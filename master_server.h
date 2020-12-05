@@ -10,7 +10,7 @@
 #include"utility.h"
 #include"gfs.grpc.pb.h"
 #include <uuid/uuid.h>
-#include<unordered_map>
+#include<map>
 #include"cstdlib"
 #include"ctime"
 #include"chunk_server.h"
@@ -45,10 +45,10 @@ class file
 {
 private:
     std::string file_path;
-    std::unordered_map<std::string,chunk&> chunks;
+    std::map<std::string,chunk&> chunks;
 public:
     file(std::string &file_path): file_path(file_path){}
-    std::unordered_map<std::string,chunk&>& get_chunks(){return this->chunks;}
+    std::map<std::string,chunk&>& get_chunks(){return this->chunks;}
     ~file(){}
 };
 
@@ -56,10 +56,10 @@ class meta_data
 {
 private:
     std::vector<std::string> locations;
-    std::unordered_map<std::string,file> files; //filepath to file
-    std::unordered_map<std::string,file> chunkhandle_to_file;
-    std::unordered_map<std::string,std::vector<std::string>> locations_dict;
-    std::unordered_map<std::string,std::string> last_chunk; // file path and last chunkhandle
+    std::map<std::string,file> files; //filepath to file
+    std::map<std::string,file> chunkhandle_to_file;
+    std::map<std::string,std::vector<std::string>> locations_dict;
+    std::map<std::string,std::string> last_chunk; // file path and last chunkhandle
 public:
     meta_data(std::vector<std::string> locations):locations(locations){}
     void get_latest_chunk(std::string &file_path,std::string&latest_chunk_handle);
@@ -67,7 +67,7 @@ public:
     void create_new_file(std::string &file_path,std::string chunk_handle,status_code& s);
     void create_new_chunk(std::string &file_path,std::string prev_chunk_handle,std::string chunk_handle,status_code& s);
     void delete_file(std::string &file_path);
-    std::unordered_map<std::string,file>& get_files(){return this->files;};
+    std::map<std::string,file>& get_files(){return this->files;};
     ~meta_data(){}
 };
 
@@ -90,6 +90,7 @@ public:
     status_code append_file(std::string &file_path,std::string &latest_chunk_handle,std::vector<std::string> &locations);
     status_code create_chunk(std::string &file_path,std::string &prev_chunk_handle,std::vector<std::string> &locations);
     void read_file(std::string &file_path,status_code& s);
+    void write_file(std::string &file_path,std::string &data,status_code& s);
     void delete_file(std::string &file_path,status_code& s);
 
 

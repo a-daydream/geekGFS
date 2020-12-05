@@ -49,12 +49,25 @@ void client::create_file(const std::string file_path)
 
 void client::read_file(const std::string file_path)
 {
+    std::string master_reply = this->ReadFile(file_path);
+    std::cout << "Response from masterserver: " << master_reply << std::endl;
+
+    std::string prefix("ERROR");
+    if(!master_reply.compare(0,prefix.size(),prefix)){
+        return ;
+    }
 
 }
 
 void client::write_file(const std::string file_path,const std::string data)
 {
+    std::string master_reply = this->WriteFile(file_path+"|"+data);
+    std::cout << "Response from masterserver: " << master_reply << std::endl;
 
+    std::string prefix("ERROR");
+    if(!master_reply.compare(0,prefix.size(),prefix)){
+        return ;
+    }
 }
 
 void client::append_file(const std::string file_path,const std::string data)
@@ -134,12 +147,44 @@ std::string client::DeleteFile(const std::string & request)
 
 std::string client::ReadFile(const std::string & request)
 {
+    // this send_message is a file path
+    Request master_request;
+    master_request.set_send_message(request);
 
+    Reply master_reply;
+
+    ClientContext context;
+
+    Status status = this->master_stub_->ReadFile(&context, master_request, &master_reply);
+
+    if(status.ok()){
+        return master_reply.reply_message();
+    }else{
+        std::cout << status.error_code() << ": " << status.error_message()
+                << std::endl;
+        return "RPC failed for master server";
+    }
 }
 
 std::string client::WriteFile(const std::string & request)
 {
+    // this send_message is a file path
+    Request master_request;
+    master_request.set_send_message(request);
 
+    Reply master_reply;
+
+    ClientContext context;
+
+    Status status = this->master_stub_->WriteFile(&context, master_request, &master_reply);
+
+    if(status.ok()){
+        return master_reply.reply_message();
+    }else{
+        std::cout << status.error_code() << ": " << status.error_message()
+                << std::endl;
+        return "RPC failed for master server";
+    }
 }
 
 std::string client::AppendFile(const std::string & request)
