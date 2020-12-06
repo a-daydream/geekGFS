@@ -10,6 +10,11 @@ void split_master(std::string str,std::vector<std::string>& strings){
     }
 }
 
+
+
+
+
+
 void meta_data::get_latest_chunk(std::string &file_path,std::string&latest_chunk_handle)
 {
     if(this->files.find(file_path)->second.get_chunks().size()>0){
@@ -89,6 +94,77 @@ void meta_data::delete_file(std::string &file_path)
 }
 
 
+
+
+// void master_server::storage_metadata()
+// {
+//     std::string file_path = "./metadata";
+    
+//     std::string data;
+//     std::map<std::string,file>::iterator file_begin =  this->metaData.get_files().begin();
+//     std::map<std::string,file>::iterator file_end =  this->metaData.get_files().end();
+//     std::string file_name;
+//     std::string chunk_handle;
+//     std::string chunk_locations;
+//     while(file_begin!=file_end){
+//         file_name = file_begin->first;
+        
+//         std::map<std::string, chunk &>::iterator chunk_it_begin =  file_begin->second.get_chunks().begin();
+//         std::map<std::string, chunk &>::iterator chunk_it_end =  file_begin->second.get_chunks().end();
+//         chunk_handle = "";
+//         while(chunk_it_begin!=chunk_it_end){
+//             chunk_handle = "|chunkhandle|" + chunk_it_begin->first;
+//             chunk_locations = "";
+//             for(int loc_index =0;loc_index<chunk_it_begin->second.locations.size();loc_index++){
+//                 chunk_locations =chunk_locations+ "|"+chunk_it_begin->second.locations[loc_index];
+//             }
+//             chunk_handle = chunk_handle +"|locations" + chunk_locations;
+//             chunk_it_begin++;
+//         }
+//         data = data+"|filename"+"|"+file_name + chunk_handle;
+//         file_begin++;
+//     }
+//     try
+//     {
+//         std::ofstream meta_file;
+//         meta_file.open(file_path,std::ios::out);
+//         meta_file<<data;
+//         meta_file.close();
+//     }
+//     catch(const std::exception& e)
+//     {
+//         std::cerr << e.what() << '\n';
+//     }
+// }
+
+// void master_server::read_metadata()
+// {
+//     std::string file_path = "./metadata";
+//     std::string data;
+//     try
+//     {
+//         std::ifstream meta_file;
+//         meta_file.open(file_path,std::ios::in);
+//         meta_file>>data;
+//         meta_file.close();
+//     }
+//     catch(const std::exception& e)
+//     {
+//         std::cerr << e.what() << '\n';
+//     }
+
+//     std::vector<std::string> strings;
+//     split_master(data,strings);
+//     std::string content;
+//     int index = 0;
+//     std::string file_name;
+//     std::string chunk_handle;
+//     while (index<strings.size())
+//     {
+        
+//     }   
+
+// }
 
 
 void master_server::get_chunk_handle(std::string & s_uuid)

@@ -45,7 +45,7 @@ class file
 {
 private:
     std::string file_path;
-    std::map<std::string,chunk&> chunks;
+    std::map<std::string,chunk&> chunks; //chunk_handle chunk
 public:
     file(std::string &file_path): file_path(file_path){}
     std::map<std::string,chunk&>& get_chunks(){return this->chunks;}
@@ -82,6 +82,8 @@ private:
 public:
     master_server(std::string &port,std::vector<std::string> locations):port(port),metaData(locations){}
 
+    // void storage_metadata();
+    // void read_metadata();
     void get_chunk_handle(std::string& s_uuid);
     void  check_valid_file(std::string &file_path,status_code& s);
     void  list_files(std::string &file_path,std::vector<std::string>& files);
@@ -92,6 +94,7 @@ public:
     void write_file(std::string &file_path,std::string &data,std::string& chunks,status_code& s);
     void delete_file(std::string &file_path,status_code& s);
     
+
 
 
     Status CreateFile(ServerContext* context,const Request* request ,Reply* reply) override;
