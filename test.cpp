@@ -38,24 +38,26 @@ class meta_data
 int main(int argc, char const *argv[])
 {
    
-    std::map<std::string,std::string> test;
-    test.insert(std::pair<std::string,std::string>("a","a"));
-    test.insert(std::pair<std::string,std::string>("b","b"));
-    test.insert(std::pair<std::string,std::string>("c","c"));
-    std::map<std::string,std::string>::iterator it = test.begin();
-    std::string temp = it->first;
-    it++;
-    test.erase(temp);
-    std::cout<<it->first<< temp <<std::endl;
+    // std::map<std::string,std::string> test;
+    // test.insert(std::pair<std::string,std::string>("a","a"));
+    // test.insert(std::pair<std::string,std::string>("b","b"));
+    // test.insert(std::pair<std::string,std::string>("c","c"));
+    // std::map<std::string,std::string>::iterator it = test.begin();
+    // std::string temp = it->first;
+    // it++;
+    // test.erase(temp);
+    // std::cout<<it->first<< temp <<std::endl;
     // std::string chunk_handle;
     // for(int index=1;index <5;index++){
     //     chunk_handle = std::to_string(index);
     //     std::cout<<chunk_handle<<std::endl;
     // }  
-    // std::ofstream file;
-    // file.open("test1",std::ios::out);
-    // file<<"123456";
-    // file.close();
+    std::ifstream file;
+    file.open("test1",std::ios::in);
+    std::string data;
+    file>>data;
+    std::cout<<data.size()<<std::endl;
+    file.close();
 
     // if(argc<3){
     //     std::cout<<"Usage:" + std::string(argv[0])+ " <command> <file_path> <args>"<<std::endl;

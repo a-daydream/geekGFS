@@ -31,8 +31,27 @@ void chunk_server::create(std::string &chunk_handle,status_code& s)
     
 }
 
-void chunk_server::get_chunk_space(std::string &chunk_handle,float &chunk_space,status_code& s)
+void chunk_server::get_chunk_space(std::string &chunk_handle,int &chunk_space,status_code& s)
 {
+    std::string file_path = this->root + "/" + chunk_handle;
+    std::cout<<"get remain size of " << file_path<<std::endl;
+    try
+    {
+        std::ifstream file;
+        file.open(file_path,std::ios::out);
+        std::string data;
+        file>>data;
+        chunk_space = data.size();
+        file.close();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        s.value = -1;
+        s.exception = "ERROR :" +std::string(e.what());
+    }
+    s.value = 0;
+    s.exception = "SUCCESS: "+ this->port +" get remain size of " + file_path;
 
 }
 
@@ -60,12 +79,47 @@ void chunk_server::write(std::string &chunk_handle,std::string &data,status_code
 
 void chunk_server::append(std::string &chunk_handle,std::string &data,status_code& s)
 {
+    std::string file_path = this->root + "/" + chunk_handle;
+    std::cout<<" append " + data +" into " << file_path<<std::endl;
+    try
+    {
+        std::ofstream file;
+        file.open(file_path,std::ios::app);
+        file<<data;
+        file.close();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        s.value = -1;
+        s.exception = "ERROR :" +std::string(e.what());
+    }
 
+    s.value = 0;
+    s.exception = "SUCCESS: "+ this->port +" read data from " + chunk_handle;
 }
 
-void chunk_server::read(std::string &chunk_handle,status_code& s)
+void chunk_server::read(std::string &chunk_handle,std::string& data,status_code& s)
 {
+    std::string file_path = this->root + "/" + chunk_handle;
+    std::cout<<"read " << file_path<<std::endl;
 
+    try
+    {
+        std::ifstream file;
+        file.open(file_path,std::ios::in);
+        file>>data;
+        file.close();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        s.value = -1;
+        s.exception = "ERROR :" +std::string(e.what());
+    }
+
+    s.value = 0;
+    s.exception = "SUCCESS: "+ this->port +" read data from " + chunk_handle;
 }
 
 
@@ -81,7 +135,6 @@ Status chunk_server::Create(ServerContext* context,const Request* request ,Reply
 
 Status chunk_server::Write(ServerContext* context,const Request* request ,Reply* reply)
 {
-    std::cout<<"Write "<<std::endl;
     std::vector<std::string> chunk_handle_and_data;
     split1(request->send_message(),chunk_handle_and_data);
     std::string data = chunk_handle_and_data[1];
@@ -102,17 +155,55 @@ Status chunk_server::Write(ServerContext* context,const Request* request ,Reply*
 
 Status chunk_server::Read(ServerContext* context,const Request* request ,Reply* reply)
 {
+    std::string chunk_handle = request->send_message();
+    std::string data;
+    status_code s;
+    this->read(chunk_handle,data,s);
 
+    if(s.value != 0){
+        reply->set_reply_message(s.exception);
+        return Status::OK;
+    }
+    
+    reply->set_reply_message(data);
+    return Status::OK;
 }
 
 Status chunk_server::GetChunkSpace(ServerContext* context,const Request* request ,Reply* reply)
 {
+    std::string chunk_handle = request->send_message();
+    std::cout<<this->port +std::string(" Get ChunkRemainSize of ") + chunk_handle<<std::endl;
+    status_code s;
+    int chunk_rem_size;
+    this->get_chunk_space(chunk_handle,chunk_rem_size,s);
+
+    if(s.value != 0){
+        reply->set_reply_message(s.exception);
+        return Status::OK;
+    }
+    
+    reply->set_reply_message(std::to_string(chunk_rem_size));
+    return Status::OK;
 
 }
 
 Status chunk_server::Append(ServerContext* context,const Request* request ,Reply* reply)
 {
+    std::vector<std::string> strings;
+    split1(request->send_message(),strings);
+    std::string chunk_handle = strings[0];
+    std::string data = strings[1];
+    std::cout<<this->port +std::string(" append ")+ data +" into " + chunk_handle<<std::endl;
+    status_code s;
+    this->append(chunk_handle,data,s);
 
+    if(s.value != 0){
+        reply->set_reply_message(s.exception);
+        return Status::OK;
+    }
+    
+    reply->set_reply_message(s.exception);
+    return Status::OK;
 }
 
 

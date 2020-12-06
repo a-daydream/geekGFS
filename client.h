@@ -40,6 +40,7 @@ public:
 
     std::string ListFiles(const std::string & request);
     std::string CreateFile(const std::string & request);
+    std::string CreateChunk(const std::string & request);
     std::string DeleteFile(const std::string & request);
     std::string ReadFile(const std::string & request);
     std::string WriteFile(const std::string & request);

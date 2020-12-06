@@ -86,9 +86,9 @@ public:
     void  check_valid_file(std::string &file_path,status_code& s);
     void  list_files(std::string &file_path,std::vector<std::string>& files);
     void create_file(std::string &file_path,std::string &chunk_handle,std::vector<std::string> &locations,status_code& s);
-    status_code append_file(std::string &file_path,std::string &latest_chunk_handle,std::vector<std::string> &locations);
-    status_code create_chunk(std::string &file_path,std::string &prev_chunk_handle,std::vector<std::string> &locations);
-    void read_file(std::string &file_path,status_code& s);
+    void append_file(std::string &file_path,std::string &latest_chunk_handle,std::vector<std::string> &locations,status_code& s);
+    void create_chunk(std::string &file_path,std::string &prev_chunk_handle,std::vector<std::string> &locations,status_code& s);
+    void read_file(std::string &file_path,std::string& data,status_code& s);
     void write_file(std::string &file_path,std::string &data,std::string& chunks,status_code& s);
     void delete_file(std::string &file_path,status_code& s);
 

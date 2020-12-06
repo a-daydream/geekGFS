@@ -142,17 +142,29 @@ void master_server::create_file(std::string &file_path,std::string &chunk_handle
     locations = f.get_chunks().find(chunk_handle)->second.locations;
 }
 
-status_code master_server::append_file(std::string &file_path,std::string &latest_chunk_handle,std::vector<std::string> &locations)
+void master_server::append_file(std::string &file_path,std::string &latest_chunk_handle,std::vector<std::string> &locations,status_code& s)
 {
-
+    locations = this->metaData.get_files().find(file_path)->second.get_chunks().find(latest_chunk_handle)->second.locations;
+    s.value = 0;
+    s.exception = std::string("SUCCESS: file ") + file_path + std::string(" last chunk get");
 }
 
-status_code master_server::create_chunk(std::string &file_path,std::string &prev_chunk_handle,std::vector<std::string> &locations)
+void master_server::create_chunk(std::string &file_path,std::string &prev_chunk_handle,std::vector<std::string> &locations,status_code& s)
 {
-
+    int chunk_index = prev_chunk_handle[0];
+    std::string new_chunk_handle;
+    this->get_chunk_handle(new_chunk_handle);
+    new_chunk_handle = std::to_string(chunk_index) + new_chunk_handle;
+    chunk* new_c = new chunk();
+    choose_locs(locations);
+    new_c->locations = locations;
+    this->metaData.get_files().find(file_path)->second.get_chunks().insert(std::pair<std::string,chunk&>(new_chunk_handle,*new_c));
+    prev_chunk_handle = new_chunk_handle;
+    s.value = 0;
+    s.exception = std::string("SUCCESS: file ") + file_path + std::string(" create new chunk ");
 }
 
-void master_server::read_file(std::string &file_path,status_code& s)
+void master_server::read_file(std::string &file_path,std::string& data,status_code& s)
 {
     this->check_valid_file(file_path,s);
     if(s.value !=0){
@@ -164,9 +176,11 @@ void master_server::read_file(std::string &file_path,status_code& s)
     
     std::vector<std::string> all_chunk_handles;
     while (chunks_it != chunks_end){
-        all_chunk_handles.push_back(chunks_it->first);
+        data = data + "|" + chunks_it->first + "|" + chunks_it->second.locations[0];
         chunks_it++;
     } 
+    s.value = 0;
+    s.exception = std::string("SUCCESS: file ") + file_path + std::string(" is readed");
 
 }
 
@@ -246,6 +260,7 @@ void master_server::write_file(std::string &file_path,std::string& data,std::str
                 chunks = chunks +"|"+ locations[j];
             }
             this->metaData.get_files().find(file_path)->second.get_chunks().insert(std::pair<std::string,chunk&>(chunk_handle,*c));
+            add_index++;
         }
     }
 
@@ -314,11 +329,43 @@ Status master_server::ListFiles(ServerContext* context,const Request* request ,R
 Status master_server::ReadFile(ServerContext* context,const Request* request ,Reply* reply) 
 {
     std::string file_path = request->send_message();
+    std::cout<<std::string("Command read ") + file_path<<std::endl;
+    std::string data;
+    status_code s;
+    this->read_file(file_path,data,s);
+
+    if(s.value !=0){
+        reply->set_reply_message(s.exception);
+        return Status::OK;
+    }
+
+    reply->set_reply_message(data);
+    return Status::OK;
+
 }
 
 Status master_server::CreateChunk(ServerContext* context,const Request* request ,Reply* reply) 
 {
-    std::string file_path = request->send_message();
+    std::vector<std::string> strings;
+    split_master(request->send_message(),strings);
+    std::string file_path = strings[0];
+    std::string chunk_handle = strings[1];
+    
+    std::cout<<std::string("Command create chunk of ") + file_path<<std::endl;
+    status_code s;
+    std::vector<std::string> locations;
+    this->create_chunk(file_path,chunk_handle,locations,s);
+    if(s.value !=0){
+        reply->set_reply_message(s.exception);
+        return Status::OK;
+    }
+
+    std::string reply_message = chunk_handle;
+    for(int index=0;index<locations.size();index++){
+        reply_message = reply_message+"|"+locations[index];
+    }
+    reply->set_reply_message(reply_message);
+    return Status::OK;
 }
 
 Status master_server::WriteFile(ServerContext* context,const Request* request ,Reply* reply) 
@@ -343,7 +390,31 @@ Status master_server::WriteFile(ServerContext* context,const Request* request ,R
 
 Status master_server::AppendFile(ServerContext* context,const Request* request ,Reply* reply) 
 {
-    std::string file_path = request->send_message();
+    std::vector<std::string> strings;
+    split_master( request->send_message(),strings);
+    std::string file_path = strings[0];
+    std::string data = strings[1];
+    std::cout<<std::string("Command append ")  + data +" to "+ file_path<<std::endl;
+    status_code s;
+    std::string last_chunk;
+    std::vector<std::string> locations;
+    this->metaData.get_latest_chunk(file_path,last_chunk);
+    
+    this->append_file(file_path,last_chunk,locations,s);
+
+
+    if(s.value !=0){
+        reply->set_reply_message(s.exception);
+        return Status::OK;
+    }
+    
+
+    std::string reply_message = last_chunk;
+    for(int index=0;index<locations.size();index++){
+        reply_message = reply_message + "|" + locations[index];
+    }
+    reply->set_reply_message(reply_message);
+    return Status::OK;
 }
 
 
