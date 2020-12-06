@@ -92,31 +92,24 @@ void client::write_file(const std::string file_path,const std::string data)
     std::string chunk_handle;
     std::string chunk_data_towrite;
     int size = chunkhandle_locations.size();
-    int index;
-    for(index =0;index<size;index++){
+    int index = 0;
+    while(index<size){
         if(index%4 == 0){
+            int send_data_start = (index/4)*64;
+            int send_data_size = 64;
             chunk_handle = chunkhandle_locations[index];
+            ports.push_back(chunkhandle_locations[++index]);
+            ports.push_back(chunkhandle_locations[++index]);
+            ports.push_back(chunkhandle_locations[++index]);
             for(int port_num=0;port_num<ports.size();port_num++){
                 this->set_chunkserver_stub_(grpc::CreateChannel("localhost:"+ports[port_num],grpc::InsecureChannelCredentials()));
-                int send_data_start = (index/4)*64;
-                int send_data_end = 64;
-                std::string send_data = chunk_handle + "|"+ data.substr(send_data_start,send_data_end);
+                std::string send_data = chunk_handle + "|"+ data.substr(send_data_start,send_data_size);
                 std::string chunk_reply = this->Write(send_data);
                 std::cout << "Response from chunkserver: " << chunk_reply << std::endl;
             }
             ports.clear();
-            continue;
         }
-        ports.push_back(chunkhandle_locations[index]);
-    }
-
-    for(int port_num=0;port_num<ports.size();port_num++){
-        this->set_chunkserver_stub_(grpc::CreateChannel("localhost:"+ports[port_num],grpc::InsecureChannelCredentials()));
-        int send_data_start = ((index-1)/4)*64;
-        int send_data_end = 64;
-        std::string send_data = chunk_handle + "|"+ data.substr(send_data_start,send_data_end);
-        std::string chunk_reply = this->Write(send_data);
-        std::cout << "Response from chunkserver: " << master_reply << std::endl;
+        ++index;
     }
 
 }
